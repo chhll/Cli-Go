@@ -180,13 +180,19 @@ int funcInitBoard (struc_Board *b, unsigned s) {
 
 // Calculate the air of the pawn.
 int funcAir(struc_Board* b, struc_Pawn* p) {
-    
+    int air = 0;
     if (NULL == b) {
-        cout << "funcAir: Board invalid." << endl;
+        cout << "funcAir: Board or pawn invalid." << endl;
         return error;
     };
 
-    return 0;
+    p->checked = pawn_Check::Checked;
+    air += funcEasternAir(b, p);
+    air += funcWesternAir(b, p);
+    air += funcSouthernAir(b, p);
+    air += funcNorthernAir(b, p);
+
+    return air;
 };
 
 // Calculate the air of all the pawn on the board.
@@ -200,7 +206,7 @@ int funcBoardAir(struc_Board* b) {
 
     for (x = 0; x < b->size - 1; x++)
         for (y = 0; y < b->size - 1; y++)
-            if (NULL != b->board[x][y].Zi) b->board[x][y].Zi->checked = 0;
+            if (NULL != b->board[x][y].Zi) b->board[x][y].Zi->checked = pawn_Check::Unchecked;
 
     for (x = 0; x < b->size - 1; x++)
         for (y = 0; y < b->size - 1; y++) 
@@ -218,162 +224,154 @@ int funcBoardAir(struc_Board* b) {
 
 // Return the air to the east of the pawn.
 int funcEasternAir(struc_Board* b, struc_Pawn* p) {
-    int easternAir = 0;
-    struc_Coordinates easternCoord; struc_Pawn* easternPawn = NULL;
+    int air = 0;
+    struc_Coordinates coord; struc_Pawn* pawn = NULL;
 
     if (NULL == b || NULL == p) {
         cout << "funcEasternAir: Board or pawn invalid." << endl;
         return error;
     };
 
-    easternCoord = funcEasternCoordinates(b, p);
-    if (-1 == easternCoord.x || -1 == easternCoord.y) return easternAir;
+    coord = funcEasternCoordinates(b, p);
+    if (-1 == coord.x || -1 == coord.y) return air;
 
-    easternPawn = b->board[easternCoord.x][easternCoord.y].Zi;
-    if (NULL == easternPawn) return ++easternAir;
-    else if (easternPawn->shape != p->shape) return easternAir;
+    pawn = b->board[coord.x][coord.y].Zi;
+    if (NULL == pawn) return ++air;
+    else if (pawn->shape != p->shape) return air;
+    else if (pawn_Check::Checked == pawn->checked) return air;
 
-    easternAir += funcEasternAir(b, easternPawn);
-    easternAir += funcNorthernAir(b, easternPawn);
-    easternAir += funcSouthernAir(b, easternPawn);
-
-    return easternAir;
+    air += funcAir(b, pawn);
+    return air;
 };
 
 // Return the air to the west of the pawn.
 int funcWesternAir(struc_Board* b, struc_Pawn* p) {
-    int westernAir = 0;
-    struc_Coordinates westernCoord; struc_Pawn* westernPawn = NULL;
+    int air = 0;
+    struc_Coordinates coord; struc_Pawn* pawn = NULL;
 
     if (NULL == b || NULL == p) {
         cout << "funcWesternAir: Board or pawn invalid." << endl;
         return error;
     };
 
-    westernCoord = funcWesternCoordinates(b, p);
-    if (-1 == westernCoord.x || -1 == westernCoord.y) return westernAir;
+    coord = funcWesternCoordinates(b, p);
+    if (-1 == coord.x || -1 == coord.y) return air;
 
-    westernPawn = b->board[westernCoord.x][westernCoord.y].Zi;
-    if (NULL == westernPawn) return ++westernAir;
-    else if (westernPawn->shape != p->shape) return westernAir;
+    pawn = b->board[coord.x][coord.y].Zi;
+    if (NULL == pawn) return ++air;
+    else if (pawn->shape != p->shape) return air;
+    else if (pawn_Check::Checked == pawn->checked) return air;
 
-    westernAir += funcWesternAir(b, westernPawn);
-    westernAir += funcNorthernAir(b, westernPawn);
-    westernAir += funcSouthernAir(b, westernPawn);
-
-    return westernAir;
+    air += funcAir(b, pawn);
+    return air;
 };
 
 // Return the air to the south of the pawn.
 int funcSouthernAir(struc_Board* b, struc_Pawn* p) {
-    int southernAir = 0;
-    struc_Coordinates southernCoord; struc_Pawn* southernPawn = NULL;
+    int air = 0;
+    struc_Coordinates coord; struc_Pawn* pawn = NULL;
 
     if (NULL == b || NULL == p) {
-        cout << "funcSouthernAir: Board or pawn invalid." << endl;
+        cout << "funcWesternAir: Board or pawn invalid." << endl;
         return error;
     };
 
-    southernCoord = funcSouthernCoordinates(b, p);
-    if (-1 == southernCoord.x || -1 == southernCoord.y) return southernAir;
+    coord = funcSouthernCoordinates(b, p);
+    if (-1 == coord.x || -1 == coord.y) return air;
 
-    southernPawn = b->board[southernCoord.x][southernCoord.y].Zi;
-    if (NULL == southernPawn) return ++southernAir;
-    else if (southernPawn->shape != p->shape) return southernAir;
+    pawn = b->board[coord.x][coord.y].Zi;
+    if (NULL == pawn) return ++air;
+    else if (pawn->shape != p->shape) return air;
+    else if (pawn_Check::Checked == pawn->checked) return air;
 
-    southernAir += funcEasternAir(b, southernPawn);
-    southernAir += funcWesternAir(b, southernPawn);
-    southernAir += funcSouthernAir(b, southernPawn);
-
-    return southernAir;
+    air += funcAir(b, pawn);
+    return air;
 };
 
 // Return the air to the north of the pawn.
 int funcNorthernAir(struc_Board* b, struc_Pawn* p) {
-    int northernAir = 0;
-    struc_Coordinates northernCoord; struc_Pawn* northernPawn = NULL;
+    int air = 0;
+    struc_Coordinates coord; struc_Pawn* pawn = NULL;
 
     if (NULL == b || NULL == p) {
-        cout << "funcNorthernAir: Board or pawn invalid." << endl;
+        cout << "funcWesternAir: Board or pawn invalid." << endl;
         return error;
     };
 
-    northernCoord = funcNorthernCoordinates(b, p);
-    if (-1 == northernCoord.x || -1 == northernCoord.y) return northernAir;
+    coord = funcNorthernCoordinates(b, p);
+    if (-1 == coord.x || -1 == coord.y) return air;
 
-    northernPawn = b->board[northernCoord.x][northernCoord.y].Zi;
-    if (NULL == northernPawn) return ++northernAir;
-    else if (northernPawn->shape != p->shape) return northernAir;
+    pawn = b->board[coord.x][coord.y].Zi;
+    if (NULL == pawn) return ++air;
+    else if (pawn->shape != p->shape) return air;
+    else if (pawn_Check::Checked == pawn->checked) return air;
 
-    northernAir += funcEasternAir(b, northernPawn);
-    northernAir += funcNorthernAir(b, northernPawn);
-    northernAir += funcWesternAir(b, northernPawn);
-
-    return northernAir;
+    air += funcAir(b, pawn);
+    return air;
 };
 
 // Return the eastern coordinates of the pawn.
 struc_Coordinates funcEasternCoordinates(struc_Board* b, struc_Pawn* p) {
-    struc_Coordinates easternCoord;
+    struc_Coordinates coord;
 
-    easternCoord.x = -1; easternCoord.y = -1;
+    coord.x = -1; coord.y = -1;
     if (NULL == b || NULL == p) {
         cout << "funcEasternCoordinates: Board or pawn invalid." << endl;
-        return easternCoord;
+        return coord;
     };
 
     p->coordinates.x < b->size - 1 ?
-        easternCoord.x = p->coordinates.x + 1 : easternCoord.x = -1;
-    easternCoord.y = p->coordinates.y;
-    return easternCoord;
+        coord.x = p->coordinates.x + 1 : coord.x = -1;
+    coord.y = p->coordinates.y;
+    return coord;
 };
 
 // Return the western coordinates of the pawn.
 struc_Coordinates funcWesternCoordinates(struc_Board* b, struc_Pawn* p) {
-    struc_Coordinates westernCoord;
+    struc_Coordinates coord;
 
-    westernCoord.x = -1; westernCoord.y = -1;
+    coord.x = -1; coord.y = -1;
     if (NULL == b || NULL == p) {
         cout << "funcWesternCoordinates: Board or pawn invalid." << endl;
-        return westernCoord;
+        return coord;
     };
 
     p->coordinates.x > 0 ?
-        westernCoord.x = p->coordinates.x - 1 : westernCoord.x = -1;
-    westernCoord.y = p->coordinates.y;
-    return westernCoord;
+        coord.x = p->coordinates.x - 1 : coord.x = -1;
+    coord.y = p->coordinates.y;
+    return coord;
 };
 
 // Return the southern coordinates of the pawn.
 struc_Coordinates funcSouthernCoordinates(struc_Board* b, struc_Pawn* p) {
-    struc_Coordinates southernCoord;
+    struc_Coordinates coord;
 
-    southernCoord.x = -1; southernCoord.y = -1;
+    coord.x = -1; coord.y = -1;
     if (NULL == b || NULL == p) {
         cout << "funcSouthernCoordinates: Board or pawn invalid." << endl;
-        return southernCoord;
+        return coord;
     };
 
     p->coordinates.y > 0 ?
-        southernCoord.y = p->coordinates.y - 1 : southernCoord.y = -1;
-    southernCoord.x = p->coordinates.x;
-    return southernCoord;
+        coord.y = p->coordinates.y - 1 : coord.y = -1;
+    coord.x = p->coordinates.x;
+    return coord;
 };
 
 // Return the northern coordinates of the pawn.
 struc_Coordinates funcNorthernCoordinates(struc_Board* b, struc_Pawn* p) {
-    struc_Coordinates northernCoord;
+    struc_Coordinates coord;
 
-    northernCoord.x = -1; northernCoord.y = -1;
+    coord.x = -1; coord.y = -1;
     if (NULL == b || NULL == p) {
         cout << "funcNorthernCoordinates: Board or pawn invalid." << endl;
-        return northernCoord;
+        return coord;
     };
 
     p->coordinates.y < b->size-1 ?
-        northernCoord.y = p->coordinates.y + 1 : northernCoord.y = -1;
-    northernCoord.x = p->coordinates.x;
-    return northernCoord;
+        coord.y = p->coordinates.y + 1 : coord.y = -1;
+    coord.x = p->coordinates.x;
+    return coord;
 };
 
 // print the Go board after every move.

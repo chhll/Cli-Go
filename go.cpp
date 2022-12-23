@@ -54,6 +54,7 @@ int main () {
         steps[step].coordinates.x = x;
         steps[step].coordinates.y = y;
         steps[step].Zi = p;
+        if (error == funcBoardAir(b)) return error;
         if (error == funcPrintBoard(b)) return error;
         step++;
     };
