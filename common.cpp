@@ -86,17 +86,16 @@ int funcMoveY(struc_Board* b, string m) {
 };
 
 // fall the pawn on the board.
-struc_Pawn *funcFall(struc_Board *b, char shape, int x, int y) {
-    struc_Pawn *pawn = NULL;
+struc_Pawn* funcFall(struc_Board *b, char shape, int x, int y) {
+    struc_Pawn* pawn = NULL;
 
     if (NULL == b) {
-        cout << "funcFall: Board does not exist." << endl;
+        cout << "funcFall: Board invalid." << endl;
         return NULL;
     };
 
     if (error == funcPlayable(b, x, y)) {
-        cout << "funcFall: coordinate error." << endl;
-        cout << "x == " << x << " y == " << y << endl;
+        cout << "funcFall: coordinates error." << endl;
         return NULL;
     };
 
@@ -109,10 +108,10 @@ struc_Pawn *funcFall(struc_Board *b, char shape, int x, int y) {
 };
 
 // determine the X, Y point is playable or not.
-int funcPlayable (struc_Board *b, unsigned x, unsigned y) {
+int funcPlayable (struc_Board *b, int x, int y) {
     unsigned size = 0;
     if (NULL == b) {
-        cout << "funcPlayable: Board does not exist." << endl;
+        cout << "funcPlayable: Board invalid." << endl;
         return error;
     }
 
@@ -166,8 +165,8 @@ int funcInitBoard (struc_Board *b, unsigned s) {
     };
 
     b->size = s;
-    for (x=0; x<b->size; x++) {
-        for (y=0; y<b->size; y++) {
+    for (x = 0; x < b->size; x++) {
+        for (y = 0; y < b->size; y++) {
             b->board[x][y].blkRobbed = 0;
             b->board[x][y].whtRobbed = 0;
             b->board[x][y].shape = '+';
@@ -179,29 +178,48 @@ int funcInitBoard (struc_Board *b, unsigned s) {
     return 0;
 };
 
-// Verify the board is legit.
-
-// Return the air of the pawn.
-int funcAir (struc_Board *b, struc_Pawn *p) {
-    int air = 0;
-
-    if (NULL == b || NULL == p) {
-        cout << "funcAir: Board or pawn invalid." << endl;
+// Calculate the air of the pawn.
+int funcAir(struc_Board* b, struc_Pawn* p) {
+    
+    if (NULL == b) {
+        cout << "funcAir: Board invalid." << endl;
         return error;
     };
 
-    air += funcEasternAir(b, p);
-    air += funcSouthernAir(b, p);
-    air += funcWesternAir(b, p);
-    air += funcNorthernAir(b, p);
+    return 0;
+};
 
-    return air;
+// Calculate the air of all the pawn on the board.
+int funcBoardAir(struc_Board* b) {
+    unsigned x, y;
+
+    if (NULL == b) {
+        cout << "funcBoardAir: Board invalid." << endl;
+        return error;
+    };
+
+    for (x = 0; x < b->size - 1; x++)
+        for (y = 0; y < b->size - 1; y++)
+            if (NULL != b->board[x][y].Zi) b->board[x][y].Zi->checked = 0;
+
+    for (x = 0; x < b->size - 1; x++)
+        for (y = 0; y < b->size - 1; y++) 
+            if (NULL != b->board[x][y].Zi) funcAir(b, b->board[x][y].Zi);
+
+    for (x = 0; x < b->size - 1; x++)
+        for (y = 0; y < b->size - 1; y++)
+            if (NULL != b->board[x][y].Zi && 0 == b->board[x][y].Zi->air) {
+                b->board[x][y].Zi->status = pawn_Status::Dead;
+                b->board[x][y].Zi = NULL;
+            };
+
+    return 0;
 };
 
 // Return the air to the east of the pawn.
-int funcEasternAir (struc_Board *b, struc_Pawn *p) {
-    int easternAir = 0; 
-    struc_Coordinates easternCoord; struc_Pawn *easternPawn = NULL;
+int funcEasternAir(struc_Board* b, struc_Pawn* p) {
+    int easternAir = 0;
+    struc_Coordinates easternCoord; struc_Pawn* easternPawn = NULL;
 
     if (NULL == b || NULL == p) {
         cout << "funcEasternAir: Board or pawn invalid." << endl;
@@ -213,7 +231,7 @@ int funcEasternAir (struc_Board *b, struc_Pawn *p) {
 
     easternPawn = b->board[easternCoord.x][easternCoord.y].Zi;
     if (NULL == easternPawn) return ++easternAir;
-    else if (easternPawn->color != p->color) return easternAir;
+    else if (easternPawn->shape != p->shape) return easternAir;
 
     easternAir += funcEasternAir(b, easternPawn);
     easternAir += funcNorthernAir(b, easternPawn);
@@ -237,7 +255,7 @@ int funcWesternAir(struc_Board* b, struc_Pawn* p) {
 
     westernPawn = b->board[westernCoord.x][westernCoord.y].Zi;
     if (NULL == westernPawn) return ++westernAir;
-    else if (westernPawn->color != p->color) return westernAir;
+    else if (westernPawn->shape != p->shape) return westernAir;
 
     westernAir += funcWesternAir(b, westernPawn);
     westernAir += funcNorthernAir(b, westernPawn);
@@ -261,7 +279,7 @@ int funcSouthernAir(struc_Board* b, struc_Pawn* p) {
 
     southernPawn = b->board[southernCoord.x][southernCoord.y].Zi;
     if (NULL == southernPawn) return ++southernAir;
-    else if (southernPawn->color != p->color) return southernAir;
+    else if (southernPawn->shape != p->shape) return southernAir;
 
     southernAir += funcEasternAir(b, southernPawn);
     southernAir += funcWesternAir(b, southernPawn);
@@ -285,7 +303,7 @@ int funcNorthernAir(struc_Board* b, struc_Pawn* p) {
 
     northernPawn = b->board[northernCoord.x][northernCoord.y].Zi;
     if (NULL == northernPawn) return ++northernAir;
-    else if (northernPawn->color != p->color) return northernAir;
+    else if (northernPawn->shape != p->shape) return northernAir;
 
     northernAir += funcEasternAir(b, northernPawn);
     northernAir += funcNorthernAir(b, northernPawn);
@@ -295,7 +313,7 @@ int funcNorthernAir(struc_Board* b, struc_Pawn* p) {
 };
 
 // Return the eastern coordinates of the pawn.
-struc_Coordinates funcEasternCoordinates (struc_Board *b, struc_Pawn *p) {
+struc_Coordinates funcEasternCoordinates(struc_Board* b, struc_Pawn* p) {
     struc_Coordinates easternCoord;
 
     easternCoord.x = -1; easternCoord.y = -1;
@@ -304,8 +322,8 @@ struc_Coordinates funcEasternCoordinates (struc_Board *b, struc_Pawn *p) {
         return easternCoord;
     };
 
-    p->coordinates.x < b->size-1 ?
-        easternCoord.x = p->coordinates.x+1 : easternCoord.x = -1;
+    p->coordinates.x < b->size - 1 ?
+        easternCoord.x = p->coordinates.x + 1 : easternCoord.x = -1;
     easternCoord.y = p->coordinates.y;
     return easternCoord;
 };
@@ -359,18 +377,18 @@ struc_Coordinates funcNorthernCoordinates(struc_Board* b, struc_Pawn* p) {
 };
 
 // print the Go board after every move.
-int funcPrintBoard (struc_Board *b) {
+int funcPrintBoard(struc_Board* b) {
     int x, y, size;
-    string *rowToPrint, row, col;
+    string* rowToPrint, row, col;
 
     if (NULL == b) {
-        cout << "funcPrintBoard: Board does not exist." << endl;
+        cout << "funcPrintBoard: Board invalid." << endl;
         return error;
     };
 
     size = b->size;
-    if (9!=size && 13!=size && 19!=size) {
-        cout << "funcPrintBoard: Board size error." << endl;
+    if (9 != size && 13 != size && 19 != size) {
+        cout << "funcPrintBoard: Board size invalid." << endl;
         return error;
     };
 
@@ -394,17 +412,17 @@ int funcPrintBoard (struc_Board *b) {
         for (x = 0; x < size; x++) {
             if (NULL == b->board[x][y].Zi) rowToPrint[y] += b->board[x][y].shape;
             else rowToPrint[y] += b->board[x][y].Zi->shape;
-            x==size-1 ? rowToPrint[y]+="" : rowToPrint[y] += "---";
+            x == size - 1 ? rowToPrint[y] += "" : rowToPrint[y] += "---";
         };
     };
 
     cout << '\t' << '\t' << row << '\n';
     for (y = size; y > 0; y--) {
-        cout << '\t' << y << '\t' << rowToPrint[y-1] << '\t' << y << '\n';
+        cout << '\t' << y << '\t' << rowToPrint[y - 1] << '\t' << y << '\n';
         y == 1 ? cout << "" : cout << '\t' << '\t' << col << '\n';
     };
     cout << '\t' << '\t' << row << '\n';
 
-    delete []rowToPrint;
+    delete[]rowToPrint;
     return 0;
 };

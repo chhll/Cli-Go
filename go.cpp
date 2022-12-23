@@ -2,8 +2,6 @@
 #include "common.h"
 
 using namespace std;
-const char white = 'O';
-const char black = 'X';
 const unsigned total_move = 400;
 
 int main () {
@@ -50,12 +48,7 @@ int main () {
         y = funcMoveY(b, nextMove);
         step % 2 == 0 ? shape = black : shape = white;
         p = funcFall(b, shape, x, y);
-
-        if (NULL == p) {
-            cout << "Position invalid. ";
-            continue;
-        }
-
+        if (NULL == p) continue;
         else b->board[x][y].Zi = p;
 
         steps[step].coordinates.x = x;

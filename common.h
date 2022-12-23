@@ -2,7 +2,9 @@
 
 using namespace std;
 
-enum class pawn_Color {Grey = 2, Black = 1, White = 0};
+const char white = 'O';
+const char black = 'X';
+
 enum class pawn_Status {Dead = 1, Alive = 0};
 enum class position_Status {Forbidden = 2, Occupied = 1, Unoccupied = 0};
 
@@ -12,15 +14,6 @@ enum class position_Status {Forbidden = 2, Occupied = 1, Unoccupied = 0};
 #define line_13 13
 #define line_19 19
 
-class struc_Air {
-public:
-    unsigned air;
-    unsigned easternAir;
-    unsigned southernAir;
-    unsigned westernAir;
-    unsigned northernAir;
-};
-
 class struc_Coordinates {
 public:
     int x;
@@ -29,17 +22,17 @@ public:
 
 class struc_Pawn {
 public:
-    struc_Air air;
+    unsigned air;
+    int checked;
     struc_Coordinates coordinates;
     pawn_Status status;
-    pawn_Color color;
     char shape;
 };
 
 class struc_Position {
 public:
-    unsigned blkRobbed;
-    unsigned whtRobbed;
+    int blkRobbed;
+    int whtRobbed;
     char shape;
     struc_Coordinates coordinates;
     position_Status status;
@@ -58,7 +51,7 @@ public:
     struc_Position board[line_19][line_19];
 };
 
-int funcAir(struc_Board*, struc_Pawn*);
+int funcBoardAir(struc_Board*);
 int funcEasternAir(struc_Board*, struc_Pawn*);
 int funcWesternAir(struc_Board*, struc_Pawn*);
 int funcSouthernAir(struc_Board*, struc_Pawn*);
@@ -68,7 +61,7 @@ struc_Coordinates funcWesternCoordinates(struc_Board*, struc_Pawn*);
 struc_Coordinates funcSouthernCoordinates(struc_Board*, struc_Pawn*);
 struc_Coordinates funcNorthernCoordinates(struc_Board*, struc_Pawn*);
 int funcSizeOfBoard(unsigned);
-int funcPlayable(struc_Board*, unsigned, unsigned);
+int funcPlayable(struc_Board*, int, int);
 int funcInitBoard(struc_Board*, unsigned);
 int funcPrintBoard(struc_Board*);
 int funcInitSteps(struc_Step*, unsigned);
