@@ -42,6 +42,7 @@ public:
 
 class struc_Step {
 public:
+    unsigned count;
     struc_Coordinates coordinates;
     struc_Pawn *Zi;
 };
@@ -53,6 +54,7 @@ public:
 };
 
 int funcBoardAir(struc_Board*);
+int funcAir(struc_Board*, struc_Pawn*);
 int funcEasternAir(struc_Board*, struc_Pawn*);
 int funcWesternAir(struc_Board*, struc_Pawn*);
 int funcSouthernAir(struc_Board*, struc_Pawn*);
@@ -65,7 +67,8 @@ int funcSizeOfBoard(unsigned);
 int funcPlayable(struc_Board*, int, int);
 int funcInitBoard(struc_Board*, unsigned);
 int funcPrintBoard(struc_Board*);
-int funcInitSteps(struc_Step*, unsigned);
+int funcPrintStep(vector<struc_Step>);
+int funcInitSteps(vector<struc_Step>, unsigned);
 int funcMoveX(struc_Board*, string);
 int funcMoveY(struc_Board*, string);
 struc_Pawn* funcFall(struc_Board*, char, int, int);

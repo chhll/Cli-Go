@@ -29,7 +29,7 @@ int funcMoveX(struc_Board *b, string m) {
     int x; string x_coord; int size;
     
     if (NULL == b) {
-        cout << "funcMoveX: Board does not exist." << endl;
+        cout << "funcMoveX: Board invalid." << endl;
         return error;
     };
     
@@ -45,7 +45,7 @@ int funcMoveX(struc_Board *b, string m) {
             return error;
         };
 
-        m[0] < 'I' ? x = m[0] - 'A' : x = m[0] - 'A' + 1;
+        m[0] < 'I' ? x = m[0] - 'A' : x = m[0] - 'A' - 1;
     }
 
     else {
@@ -54,7 +54,7 @@ int funcMoveX(struc_Board *b, string m) {
             return error;
         };
 
-        m[0] < 'i' ? x = m[0] - 'a' : x = m[0] - 'a' + 1;
+        m[0] < 'i' ? x = m[0] - 'a' : x = m[0] - 'a' - 1;
     };
     
     return x;
@@ -108,7 +108,7 @@ struc_Pawn* funcFall(struc_Board* b, char shape, int x, int y) {
 };
 
 // determine the X, Y point is playable or not.
-int funcPlayable (struc_Board *b, int x, int y) {
+int funcPlayable(struc_Board* b, int x, int y) {
     unsigned size = 0;
     if (NULL == b) {
         cout << "funcPlayable: Board invalid." << endl;
@@ -116,12 +116,12 @@ int funcPlayable (struc_Board *b, int x, int y) {
     }
 
     size = b->size;
-    if (x<0 || x>size-1) {
+    if (x<0 || x>size - 1) {
         cout << "funcPlayable: coordinate x invalid." << endl;
         return error;
     };
 
-    if (y<0 || y>size-1) {
+    if (y<0 || y>size - 1) {
         cout << "funcPlayable: coordinate y invalid." << endl;
         return error;
     };
@@ -135,16 +135,14 @@ int funcPlayable (struc_Board *b, int x, int y) {
 };
 
 // initialize the steps.
-int funcInitSteps (struc_Step *s, unsigned length) {
-    unsigned z = 0;
+int funcInitSteps (vector<struc_Step> s, unsigned length) {
+    unsigned x;
 
-    if (NULL == s) return error;
     if (length < 1) return error;
-    // cout << "the step length is " << length << endl;
-    for (z=0; z<length; z++) {
-        s[z].coordinates.x = 0;
-        s[z].coordinates.y = 0;
-        s[z].Zi = NULL;
+    for (x = 0; x < length; x++) {
+        s[x].coordinates.x = 0;
+        s[x].coordinates.y = 0;
+        s[x].Zi = NULL;
     };
 
     return 0;
@@ -176,23 +174,6 @@ int funcInitBoard (struc_Board *b, unsigned s) {
     };
 
     return 0;
-};
-
-// Calculate the air of the pawn.
-int funcAir(struc_Board* b, struc_Pawn* p) {
-    int air = 0;
-    if (NULL == b) {
-        cout << "funcAir: Board or pawn invalid." << endl;
-        return error;
-    };
-
-    p->checked = pawn_Checked::Checked;
-    air += funcEasternAir(b, p);
-    air += funcWesternAir(b, p);
-    air += funcSouthernAir(b, p);
-    air += funcNorthernAir(b, p);
-
-    return air;
 };
 
 // Calculate the air of all the pawn on the board.
@@ -229,6 +210,23 @@ int funcBoardAir(struc_Board* b) {
     return 0;
 };
 
+// Calculate the air of the pawn.
+int funcAir(struc_Board* b, struc_Pawn* p) {
+    int air = 0;
+    if (NULL == b) {
+        cout << "funcAir: Board or pawn invalid." << endl;
+        return error;
+    };
+
+    p->checked = pawn_Checked::Checked;
+    air += funcEasternAir(b, p);
+    air += funcWesternAir(b, p);
+    air += funcSouthernAir(b, p);
+    air += funcNorthernAir(b, p);
+
+    return air;
+};
+
 // Return the air to the east of the pawn.
 int funcEasternAir(struc_Board* b, struc_Pawn* p) {
     int air = 0;
@@ -244,7 +242,7 @@ int funcEasternAir(struc_Board* b, struc_Pawn* p) {
 
     pawn = b->board[coord.x][coord.y].Zi;
     if (NULL == pawn) return ++air;
-    else if (pawn->shape != p->shape) return air;
+    else if (p->shape != pawn->shape) return air;
     else if (pawn_Checked::Checked == pawn->checked) return air;
 
     air += funcAir(b, pawn);
@@ -381,7 +379,28 @@ struc_Coordinates funcNorthernCoordinates(struc_Board* b, struc_Pawn* p) {
     return coord;
 };
 
-// print the Go board after every move.
+// Print every step of the move.
+int funcPrintStep(vector<struc_Step> s) {
+    struc_Pawn* p = NULL; unsigned x;
+
+    if (0 == s.size()) {
+        cout << "funcPrintStep: Step invalid." << endl;
+        return error;
+    };
+
+    for (x = 0; x < s.size(); x++) {
+        cout << s[x].count;
+        cout << " " << s[x].coordinates.x;
+        cout << " " << s[x].coordinates.y;
+        cout << " " << s[x].Zi->shape;
+        cout << " air = " << s[x].Zi->air;
+        cout << " status = " << (unsigned)s[x].Zi->status << endl;
+    };
+
+    return 0;
+};
+
+// Print the Go board after every move.
 int funcPrintBoard(struc_Board* b) {
     int x, y, size;
     string* rowToPrint, row, col;
