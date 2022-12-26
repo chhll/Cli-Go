@@ -49,13 +49,16 @@ int main () {
         step % 2 == 0 ? shape = black : shape = white;
         p = funcFall(b, shape, x, y);
         if (NULL == p) continue;
-        else b->board[x][y].Zi = p;
+        else {
+            b->board[x][y].Zi = p;
+            b->board[x][y].status = position_Status::Occupied;
+        };
 
+        if (error == funcBoardAir(b)) return error;
+        if (error == funcPrintBoard(b)) return error;
         steps[step].coordinates.x = x;
         steps[step].coordinates.y = y;
         steps[step].Zi = p;
-        if (error == funcBoardAir(b)) return error;
-        if (error == funcPrintBoard(b)) return error;
         step++;
     };
 

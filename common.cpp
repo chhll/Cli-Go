@@ -86,7 +86,7 @@ int funcMoveY(struc_Board* b, string m) {
 };
 
 // fall the pawn on the board.
-struc_Pawn* funcFall(struc_Board *b, char shape, int x, int y) {
+struc_Pawn* funcFall(struc_Board* b, char shape, int x, int y) {
     struc_Pawn* pawn = NULL;
 
     if (NULL == b) {
@@ -186,7 +186,7 @@ int funcAir(struc_Board* b, struc_Pawn* p) {
         return error;
     };
 
-    p->checked = pawn_Check::Checked;
+    p->checked = pawn_Checked::Checked;
     air += funcEasternAir(b, p);
     air += funcWesternAir(b, p);
     air += funcSouthernAir(b, p);
@@ -197,7 +197,7 @@ int funcAir(struc_Board* b, struc_Pawn* p) {
 
 // Calculate the air of all the pawn on the board.
 int funcBoardAir(struc_Board* b) {
-    unsigned x, y;
+    unsigned x, y; struc_Pawn* p = NULL;
 
     if (NULL == b) {
         cout << "funcBoardAir: Board invalid." << endl;
@@ -205,19 +205,26 @@ int funcBoardAir(struc_Board* b) {
     };
 
     for (x = 0; x < b->size - 1; x++)
-        for (y = 0; y < b->size - 1; y++)
-            if (NULL != b->board[x][y].Zi) b->board[x][y].Zi->checked = pawn_Check::Unchecked;
+        for (y = 0; y < b->size - 1; y++) {
+            p = b->board[x][y].Zi;
+            if (NULL != p) p->checked = pawn_Checked::Unchecked;
+        };
 
     for (x = 0; x < b->size - 1; x++)
-        for (y = 0; y < b->size - 1; y++) 
-            if (NULL != b->board[x][y].Zi) funcAir(b, b->board[x][y].Zi);
+        for (y = 0; y < b->size - 1; y++) {
+            p = b->board[x][y].Zi;
+            if (NULL != p) funcAir(b, p);
+        };
 
     for (x = 0; x < b->size - 1; x++)
-        for (y = 0; y < b->size - 1; y++)
-            if (NULL != b->board[x][y].Zi && 0 == b->board[x][y].Zi->air) {
-                b->board[x][y].Zi->status = pawn_Status::Dead;
+        for (y = 0; y < b->size - 1; y++) {
+            p = b->board[x][y].Zi;
+            if (NULL != p && 0 == p->air) {
+                p->status = pawn_Status::Dead;
                 b->board[x][y].Zi = NULL;
+                b->board[x][y].status = position_Status::Unoccupied;
             };
+        };
 
     return 0;
 };
@@ -238,7 +245,7 @@ int funcEasternAir(struc_Board* b, struc_Pawn* p) {
     pawn = b->board[coord.x][coord.y].Zi;
     if (NULL == pawn) return ++air;
     else if (pawn->shape != p->shape) return air;
-    else if (pawn_Check::Checked == pawn->checked) return air;
+    else if (pawn_Checked::Checked == pawn->checked) return air;
 
     air += funcAir(b, pawn);
     return air;
@@ -260,7 +267,7 @@ int funcWesternAir(struc_Board* b, struc_Pawn* p) {
     pawn = b->board[coord.x][coord.y].Zi;
     if (NULL == pawn) return ++air;
     else if (pawn->shape != p->shape) return air;
-    else if (pawn_Check::Checked == pawn->checked) return air;
+    else if (pawn_Checked::Checked == pawn->checked) return air;
 
     air += funcAir(b, pawn);
     return air;
@@ -282,7 +289,7 @@ int funcSouthernAir(struc_Board* b, struc_Pawn* p) {
     pawn = b->board[coord.x][coord.y].Zi;
     if (NULL == pawn) return ++air;
     else if (pawn->shape != p->shape) return air;
-    else if (pawn_Check::Checked == pawn->checked) return air;
+    else if (pawn_Checked::Checked == pawn->checked) return air;
 
     air += funcAir(b, pawn);
     return air;
@@ -304,7 +311,7 @@ int funcNorthernAir(struc_Board* b, struc_Pawn* p) {
     pawn = b->board[coord.x][coord.y].Zi;
     if (NULL == pawn) return ++air;
     else if (pawn->shape != p->shape) return air;
-    else if (pawn_Check::Checked == pawn->checked) return air;
+    else if (pawn_Checked::Checked == pawn->checked) return air;
 
     air += funcAir(b, pawn);
     return air;

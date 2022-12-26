@@ -5,9 +5,9 @@ using namespace std;
 const char white = 'O';
 const char black = 'X';
 
-enum class pawn_Status {Dead = 2, Alive = 0};
-enum class pawn_Check {Checked = 1, Unchecked = 0};
-enum class position_Status {Invalid = 3, Forbidden = 2, Occupied = 1, Unoccupied = 0};
+enum class pawn_Status { Dead = 2, Quantum = 1, Alive = 0 };
+enum class pawn_Checked { Checked = 1, Unchecked = 0 };
+enum class position_Status { Invalid = 3, Forbidden = 2, Occupied = 1, Unoccupied = 0 };
 
 #define Error 1
 #define error -1
@@ -24,7 +24,7 @@ public:
 class struc_Pawn {
 public:
     unsigned air;
-    pawn_Check checked;
+    pawn_Checked checked;
     pawn_Status status;
     struc_Coordinates coordinates;
     char shape;
